@@ -1,0 +1,21 @@
+  vicontrol:
+    image: vicontrol:latest
+    #ports:
+    #  - "80:80"
+    tty: true
+    stdin_open: true
+    labels:
+      component: "vicontrol"
+    secrets:
+      - MONGO_AUTH_USER
+      - MONGO_AUTH_PASSWORD
+#      - SSH_AUTH_PASSWORD
+#      - SSH_AUTH_KEY
+      - SSH_AUTH_USER
+    environment:
+      - MONGODB_NAME=VisiologyVA
+      - MONGODB_HOST=mongodb
+      - PLATFORM_URL=${PLATFORM_URL:-proxy}
+    volumes:
+      - ./vicontrol:/app
+    << : *deploy
