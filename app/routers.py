@@ -4,6 +4,7 @@ from validator import validate_visiology
 #from fastapi.responses import JSONResponse
 #from fastapi.encoders import jsonable_encoder
 from typing import List
+from typing import Union
 import json
 
 mongo_router = APIRouter(
@@ -27,10 +28,10 @@ shell_router = APIRouter(
 )
 
 
-@shell_router.get("/restart", response_description="Restart platform")
-async def restart_platfrom(request: Request):
-    #cmd_to_execute = '/var/lib/visiology/scripts/run.sh --restart'
-    cmd_to_execute = 'docker service ls'
+@shell_router.post("/restart", response_description="Restart platform")
+async def restart_platfrom(request: Request, u: Union[str,None]=None):
+    cmd_to_execute = 'sudo /var/lib/visiology/scripts/run.sh --restart'
+    #cmd_to_execute = 'docker service ls'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
     errors = ssh_stderr.readlines()

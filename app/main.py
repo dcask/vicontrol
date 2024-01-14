@@ -15,8 +15,8 @@ with open('/run/secrets/MONGO_AUTH_PASSWORD', 'r') as f:
     mongopassword=f.read().rstrip()
 with open('/run/secrets/SSH_AUTH_USER', 'r') as f:
     ssh_user=f.read().rstrip()
-with open('/run/secrets/SSH_AUTH_PASSWORD', 'r') as f:
-    ssh_password=f.read().rstrip()
+#with open('/run/secrets/SSH_AUTH_PASSWORD', 'r') as f:
+#    ssh_password=f.read().rstrip()
 
 ostream = os.popen("/sbin/ip route|awk '/default/ { print $3 }'")
 SSH_HOST = ostream.read().rstrip()
@@ -29,7 +29,7 @@ MONGO_HOST_NAME = os.getenv('MONGODB_HOST')
 HOST = os.getenv('PLATFORM_URL')
 mongo_uri = "mongodb://%s:%s@%s/%s?directConnection=true" % (quote_plus(mongouser), quote_plus(mongopassword), MONGO_HOST_NAME, DB_NAME)
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url="/control/docs")
 
 app.include_router(mongo_router, prefix="/control")
 app.include_router(shell_router, prefix="/control")

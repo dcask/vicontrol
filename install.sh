@@ -10,6 +10,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   #echo -n ${ssh_user_password} | docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_PASSWORD -
   echo -n vicontrol | docker secret create -l VOCONTROL_SSH_AUTH=ssh_user SSH_AUTH_USER -
   useradd vicontrol -d /home/vicontrol -m -s/bin/bash
+  usermod -a -G sudo vicontrol
   #change password
   #mkdir /home/vicontrol
   #mkdir /home/vicontrol/.ssh
