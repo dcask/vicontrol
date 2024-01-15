@@ -37,7 +37,7 @@ async def restart_platfrom(request: Request):
     return {'detail':'done'}
 
 @shell_router.post("/restart/{name}", response_description="Restart platform service 'name'")
-async def restart_platfrom(request: Request):
+async def restart_service(name:str, request: Request):
     cmd_to_execute = f'docker service update visiology2_{name} --force'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
