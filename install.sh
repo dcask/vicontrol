@@ -6,17 +6,19 @@ ssh_secret_label=$(docker secret ls -q --filter label=VICONTROL_SSH_AUTH)
 #if there're no secrets 
 
 if [[ -z "${ssh_secret_label}" ]]; then
-  #ssh_user_password="$(mktemp -u XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)"
-  #echo -n ${ssh_user_password} | docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_PASSWORD -
   echo -n vicontrol | docker secret create -l VOCONTROL_SSH_AUTH=ssh_user SSH_AUTH_USER -
   useradd vicontrol -d /home/vicontrol -m -s/bin/bash
-  usermod -a -G sudo vicontrol
-  #change password
-  #mkdir /home/vicontrol
-  #mkdir /home/vicontrol/.ssh
+  groupadd visiology
+  usermod -aG visiology vicontrol
   usermod -aG docker vicontrol
+  chown -R :visiology /var/lib/visiology
+  chmod -R g+w /var/lib/visiology/scripts/*.env
+  #create ssh authorization key, make the key secret
   ssh-keygen -t rsa -q -f "home/vicontrol/.ssh/id_rsa" -N ""
   cat id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
+  docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_KEY /home/vicontrol/.ssh/id_rsa
+  rm -f /home/vicontrol/.ssh/id_rsa
+  
   #check id external.yml is default
   if ! grep -Fxq "service" /var/lib/visiology/scripts/v2/external.yml;
     then

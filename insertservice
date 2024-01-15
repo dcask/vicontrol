@@ -9,8 +9,7 @@
     secrets:
       - MONGO_AUTH_USER
       - MONGO_AUTH_PASSWORD
-#      - SSH_AUTH_PASSWORD
-#      - SSH_AUTH_KEY
+      - SSH_AUTH_KEY
       - SSH_AUTH_USER
     environment:
       - MONGODB_NAME=VisiologyVA

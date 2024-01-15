@@ -29,7 +29,7 @@ MONGO_HOST_NAME = os.getenv('MONGODB_HOST')
 HOST = os.getenv('PLATFORM_URL')
 mongo_uri = "mongodb://%s:%s@%s/%s?directConnection=true" % (quote_plus(mongouser), quote_plus(mongopassword), MONGO_HOST_NAME, DB_NAME)
 
-app = FastAPI(docs_url=None, redoc_url="/control/docs")
+app = FastAPI(docs_url=None, redoc_url="/control/docs",openapi_url="/control/openapi.json" )
 
 app.include_router(mongo_router, prefix="/control")
 app.include_router(shell_router, prefix="/control")
