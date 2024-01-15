@@ -30,7 +30,7 @@ shell_router = APIRouter(
 
 @shell_router.post("/restart", response_description="Restart platform")
 async def restart_platfrom(request: Request, u: Union[str,None]=None):
-    cmd_to_execute = 'sudo /var/lib/visiology/scripts/run.sh --restart'
+    cmd_to_execute = 'sudo nohup /var/lib/visiology/scripts/run.sh --restart > /dev/null &'
     #cmd_to_execute = 'docker service ls'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
