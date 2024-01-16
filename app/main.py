@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pymongo import MongoClient, errors
-from routers import mongo_router, shell_router
+from routers import mongo_router, shell_router, main_router
 from urllib.parse import quote_plus
 import paramiko
 
@@ -33,6 +33,7 @@ app = FastAPI(docs_url=None, redoc_url="/control/docs",openapi_url="/control/ope
 
 app.include_router(mongo_router, prefix="/control")
 app.include_router(shell_router, prefix="/control")
+app.include_router(main_router,  prefix="/control")
 
 @app.on_event("startup")
 def startup_db_client():
