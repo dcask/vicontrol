@@ -28,7 +28,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   sed -i "/service/r./insertservice" /var/lib/visiology/scripts/v2/external.yml
   #inject secrets at the eof
   cat insertsecrets >> /var/lib/visiology/scripts/v2/external.yml
-  #inject to nginx.conf
+  #inject to nginx.conf have to pass HTTP1.1 reverse and proxy2
   sed -i '/grafana:3000;/a         set $vicontrol_url http:\/\/vicontrol;' /docker-volume/proxy/nginx.conf
   sed -i '/\/regular-reporting {/i             location ~* ^\/control {\n            proxy_pass $vicontrol_url;\n        }\n' /docker-volume/proxy/nginx.conf
 fi

@@ -9,8 +9,8 @@ from bson.json_util import dumps
 import json
 main_router = APIRouter(
     tags=["admin"],
-    dependencies=[Depends(validate_visiology)],
-    responses={404: {"description": "Not found"}}
+    #dependencies=[Depends(validate_visiology)],
+    responses={404: {"description": "Not found at main"}}
 )
 @main_router.get("/stat", response_description="It's alive!")
 async def get_stat(request: Request):
@@ -21,7 +21,7 @@ mongo_router = APIRouter(
     prefix="/mongo",
     tags=["admin"],
     dependencies=[Depends(validate_visiology)],
-    responses={404: {"description": "Not found"}}
+    responses={404: {"description": "Not found at mongo"}}
 )
 @mongo_router.get("/{name}", response_description="Get item list of a collection by name", response_model=List)
 async def get_collection(name: str, request: Request):
@@ -34,7 +34,7 @@ shell_router = APIRouter(
     prefix="/shell",
     tags=["admin"],
     dependencies=[Depends(validate_visiology)],
-    responses={404: {"description": "Not found"}}
+    responses={404: {"description": "Not found at shell"}}
 )
 
 

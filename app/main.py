@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+#from fastapi.testclient import TestClient
 from pymongo import MongoClient, errors
 from routers import mongo_router, shell_router, main_router
 from urllib.parse import quote_plus
+from wsc import manager
 import paramiko
 
 import os
@@ -31,10 +33,6 @@ mongo_uri = "mongodb://%s:%s@%s/%s?directConnection=true" % (quote_plus(mongouse
 
 app = FastAPI(docs_url=None, redoc_url="/control/docs",openapi_url="/control/openapi.json" )
 
-app.include_router(mongo_router, prefix="/control")
-app.include_router(shell_router, prefix="/control")
-app.include_router(main_router,  prefix="/control")
-
 @app.on_event("startup")
 def startup_db_client():
     #host='localhost', port=27017, document_class=dict, tz_aware=False, connect=True, **kwargs
@@ -56,3 +54,36 @@ def startup_db_client():
 def shutdown_db_client():
     app.mongodb_client.close()
     app.ssh_client.close()
+
+#  WebSocket
+@app.websocket_route("/ws")
+async def test_websocket(websocket: WebSocket):
+    await websocket.accept()
+    await websocket.send_json({"msg": "Hello WebSocket"})
+    await websocket.close()
+
+
+
+@app.websocket("/control/ws/admin")
+async def websocket_admin_endpoint(websocket: WebSocket):
+    print('admin is connected')
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.broadcast(data)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+@app.websocket("/control/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    print(f'{client_id} is connected')
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.send_personal_message("{'command':'message','text':'just for listening'}", websocket)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        #await manager.broadcast(f"Client #{client_id} left the chat")
+
