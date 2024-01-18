@@ -12,7 +12,7 @@ main_router = APIRouter(
     #dependencies=[Depends(validate_visiology)],
     responses={404: {"description": "Not found at main"}}
 )
-@main_router.get("/stat", response_description="It's alive!")
+@main_router.get("/status", response_description="It's alive!")
 async def get_stat(request: Request):
     
     return {'details':'alive'}
@@ -48,16 +48,29 @@ async def restart_platfrom(request: Request):
 
 @shell_router.post("/restart/{name}", response_description="Restart platform service 'name'")
 async def restart_service(name:str, request: Request):
-    cmd_to_execute = f'docker service update visiology2_{name} --force'
+    cmd_to_execute = f'docker service update {name} --force'
+    print(cmd_to_execute)
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
     errors = ssh_stderr.readlines()
-    return {'details':ssh_stdout,'errors':ssh_stderr}
+    return {'details':output,'errors':errors}
+
+@shell_router.post("/log/{name}", response_description="Last N lines of service 'name' stdout")
+async def log_service(name:str, request: Request, data=Body()):
+    lines=100
+    if 'lines' in data:
+        lines=data['lines']
+    cmd_to_execute = 'docker logs $(docker ps -a --format {{.ID}} --filter "name='+name+'" -l | awk \'{print $1}\') -n '+str(lines)
+    print(cmd_to_execute)
+    ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
+    output = ssh_stdout.readlines()
+    errors = ssh_stderr.readlines()
+    return {'details':output,'errors':errors}
 
 @shell_router.post("/message", response_description="Send broadcast message")
 async def broadcast_admin_message( request: Request, data = Body()):
     message=data['message']
-    await request.app.manager.broadcast('{"command":"message","text":'+message+'"}')
+    await request.app.manager.broadcast('{"command":"message","text":"'+message+'"}')
     return {'details':'done'}
 
 @shell_router.get("/services", response_description="List of services", response_model=List)
