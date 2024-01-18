@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
 
 class ConnectionManager:
     def __init__(self):
@@ -16,8 +16,16 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+        try:
+            print('start broadcasting')
+            for connection in self.active_connections:
+                print('send')
+                await connection.send_text(message)
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
+            print(f"Client left the chat")
+
+        
 
 
 manager = ConnectionManager()

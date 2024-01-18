@@ -54,6 +54,12 @@ async def restart_service(name:str, request: Request):
     errors = ssh_stderr.readlines()
     return {'details':ssh_stdout,'errors':ssh_stderr}
 
+@shell_router.post("/message", response_description="Send broadcast message")
+async def broadcast_admin_message( request: Request, data = Body()):
+    message=data['message']
+    await request.app.manager.broadcast('{"command":"message","text":'+message+'"}')
+    return {'details':'done'}
+
 @shell_router.get("/services", response_description="List of services", response_model=List)
 async def service_list(request: Request):
     cmd_to_execute = f'docker service ls --format json | grep visiology2'
