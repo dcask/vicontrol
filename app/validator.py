@@ -39,7 +39,7 @@ def verify_token(request):
     for key in keys:
         try:
             jwtdecoded=jwt.decode(token, key=key, algorithms=["RS256"], options={"verify_aud": False, "verify_signature": True})
-            if 'Администратор' in jwtdecoded['role']:
+            if 'Администратор' in jwtdecoded['role'] or 'vicontrol_role' in jwtdecoded['role']:
                 valid_token = True
             break
         except Exception as e:
@@ -49,3 +49,13 @@ def verify_token(request):
         raise HTTPException(status_code=403, detail="Invalid token")
     
     return True
+
+def getTokenUser(token, keys):
+    user = ''
+    for key in keys:
+        try:
+            jwtdecoded=jwt.decode(token, key=key, algorithms=["RS256"], options={"verify_aud": False, "verify_signature": True})
+            user = jwtdecoded['name']
+        except Exception as e:
+            pass
+    return user

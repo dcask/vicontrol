@@ -49,7 +49,7 @@ async def restart_platfrom(request: Request):
 @shell_router.post("/restart/{name}", response_description="Restart platform service 'name'")
 async def restart_service(name:str, request: Request):
     cmd_to_execute = f'docker service update {name} --force'
-    print(cmd_to_execute)
+    #print(cmd_to_execute)
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
     errors = ssh_stderr.readlines()
@@ -61,17 +61,28 @@ async def log_service(name:str, request: Request, data=Body()):
     if 'lines' in data:
         lines=data['lines']
     cmd_to_execute = 'docker logs $(docker ps -a --format {{.ID}} --filter "name='+name+'" -l | awk \'{print $1}\') -n '+str(lines)
-    print(cmd_to_execute)
+    #print(cmd_to_execute)
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()
     errors = ssh_stderr.readlines()
     return {'details':output,'errors':errors}
 
-@shell_router.post("/message", response_description="Send broadcast message")
+@shell_router.post("/message", response_description="Send private or broadcast message")
 async def broadcast_admin_message( request: Request, data = Body()):
     message=data['message']
-    await request.app.manager.broadcast('{"command":"message","text":"'+message+'"}')
+    target=data['target']
+    #print("request client host", request.client.host)
+    #print("request client header", request.headers)
+    if target == 'all':
+	await request.app.manager.broadcast('{"command":"message","text":"'+message+'"}')
+    else:
+        request.app.manager.private_message('{"command":"message","text":"'+message+'"}', target)
     return {'details':'done'}
+
+@shell_router.get("/connections", response_description="List of websocket connections", response_model=List)
+async def service_list(request: Request):
+    output = request.app.manager.connection_list()
+    return output
 
 @shell_router.get("/services", response_description="List of services", response_model=List)
 async def service_list(request: Request):

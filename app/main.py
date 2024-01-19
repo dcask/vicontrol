@@ -49,7 +49,10 @@ def startup_db_client():
     app.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #app.ssh_client.connect(hostname=SSH_HOST, username=ssh_user, password=ssh_password,key_filename='/run/secrets/SSH_AUTH_KEY')
     app.ssh_client.connect(hostname=SSH_HOST, username=ssh_user, key_filename='/run/secrets/SSH_AUTH_KEY')
+
+    manager.setHostKeys(app.host)
     app.manager=manager
+    
 
 @app.on_event("shutdown")
 def shutdown_db_client():
@@ -61,7 +64,7 @@ def shutdown_db_client():
 @app.websocket("/control/ws/admin")
 async def websocket_admin_endpoint(websocket: WebSocket):
     print('admin is connected')
-    await manager.connect(websocket)
+    await manager.connect(websocket, 'admin')
     try:
         while True:
             data = await websocket.receive_text()
@@ -71,12 +74,13 @@ async def websocket_admin_endpoint(websocket: WebSocket):
 
 @app.websocket("/control/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
-    print(f'{client_id} is connected')
-    await manager.connect(websocket)
+    print(f'{client_id} connecting')
+    ok=await manager.connect(websocket, client_id)
     try:
-        while True:
+        while ok:
             data = await websocket.receive_text()
-            await manager.send_personal_message("{'command':'message','text':'just for listening'}", websocket)
+            await websocket.send_text("{'command':'message','text':'just for listening'}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+        print(f'client{client_id} closed connection')
 
