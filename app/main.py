@@ -6,7 +6,7 @@ from wsc import manager
 import paramiko
 
 import os
-
+#-----------------------------------------------------------------------
 mongouser=''
 mongopassword=''
 
@@ -28,6 +28,7 @@ print("ssh host", SSH_HOST, '---')
 DB_NAME = os.getenv('MONGODB_NAME')
 MONGO_HOST_NAME = os.getenv('MONGODB_HOST')
 HOST = os.getenv('PLATFORM_URL')
+
 mongo_uri = "mongodb://%s:%s@%s/%s?directConnection=true" % (quote_plus(mongouser), quote_plus(mongopassword), MONGO_HOST_NAME, DB_NAME)
 
 app = FastAPI(docs_url=None, redoc_url="/control/docs",openapi_url="/control/openapi.json" )
@@ -36,6 +37,7 @@ app.include_router(mongo_router, prefix="/control")
 app.include_router(shell_router, prefix="/control")
 app.include_router(main_router,  prefix="/control")
 
+#-------------------------------------------------------------- Events
 @app.on_event("startup")
 def startup_db_client():
     try:
@@ -60,7 +62,7 @@ def shutdown_db_client():
     app.ssh_client.close()
 
 
-#  WebSocket
+#--------------------------------------------------------------  WebSocket
 @app.websocket("/control/ws/admin")
 async def websocket_admin_endpoint(websocket: WebSocket):
     print('admin is connected')

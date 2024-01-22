@@ -14,7 +14,6 @@ async def validate_visiology(request: Request):
 def _get_public_keys(baseurl):
     public_keys = []
     try:
-        print(baseurl+CERTS_URL)
         r = requests.get(baseurl+CERTS_URL)
         jwk_set = r.json()
         for key_dict in jwk_set["keys"]:

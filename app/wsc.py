@@ -19,17 +19,13 @@ class ConnectionManager:
         self.keys = _get_public_keys(baseurl)
 
     async def connect(self, websocket: WebSocket, client_id:str):
-        #print('at connecting', client_id)
         await websocket.accept()
         data = loads(await websocket.receive_text())
-        #print("recieved data",data)
-        #print("socket headers",websocket.headers)
-        #print("socket client",websocket.client)
         if 'dashboard' not in data or 'token' not in data:
            websocket.send_text("Unauthorized")
            return False
         ws = ViConnection( websocket, data['dashboard'] , data['token'], client_id)
-        ws.username = getTokenUser(c.token, self.keys)
+        ws.username = getTokenUser(data['token'], self.keys)
         self.active_connections.append(ws)
         print(client_id, "connected")
         return True
@@ -41,11 +37,10 @@ class ConnectionManager:
 
     async def send_personal_message(self, message: str, client_id:str):
         for connection in self.active_connections:
-            if connection.client_id == client_id
+            if connection.client_id == client_id:
                  await connection.websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        print('start broadcasting')
         for connection in self.active_connections:
             try:
                  await connection.websocket.send_text(message)

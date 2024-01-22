@@ -31,6 +31,9 @@ if [[ -z "${ssh_secret_label}" ]]; then
   #inject to nginx.conf have to pass HTTP1.1 reverse and proxy2
   sed -i '/grafana:3000;/a         set $vicontrol_url http:\/\/vicontrol;' /docker-volume/proxy/nginx.conf
   sed -i '/\/regular-reporting {/i             location ~* ^\/control {\n            proxy_pass $vicontrol_url;\n        }\n' /docker-volume/proxy/nginx.conf
+  # websockets inject
+  #sed /var/lib/visiology/scripts/config/nginx.conf
+  #sed /docker-volume/proxy/nginx.conf
 fi
 
 #build the image
