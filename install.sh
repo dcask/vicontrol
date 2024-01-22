@@ -6,16 +6,24 @@ ssh_secret_label=$(docker secret ls -q --filter label=VICONTROL_SSH_AUTH)
 #if there're no secrets 
 
 if [[ -z "${ssh_secret_label}" ]]; then
-  echo -n vicontrol | docker secret create -l VOCONTROL_SSH_AUTH=ssh_user SSH_AUTH_USER -
+  
+  
+  #create vicontrol user
+  userdel --remove vicontrol
   useradd vicontrol -d /home/vicontrol -m -s/bin/bash
+  #add docker secret for the user
+  docker secret rm SSH_AUTH_USER
+  echo -n vicontrol | docker secret create -l VICONTROL_SSH_AUTH=ssh_user SSH_AUTH_USER -
+  #create group for the user
   groupadd visiology
   usermod -aG visiology vicontrol
   usermod -aG docker vicontrol
+  #edit folder and files rights
   chown -R :visiology /var/lib/visiology
   chmod -R g+w /var/lib/visiology/scripts/*.env
-  #create ssh authorization key, make the key secret
-  ssh-keygen -t rsa -q -f "home/vicontrol/.ssh/id_rsa" -N ""
-  cat id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
+  #create ssh authorization key, make the key secret and finnaly remove private key
+  ssh-keygen -t rsa -q -f "/home/vicontrol/.ssh/id_rsa" -N ""
+  cat /home/vicontrol/id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
   docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_KEY /home/vicontrol/.ssh/id_rsa
   rm -f /home/vicontrol/.ssh/id_rsa
   
@@ -25,15 +33,25 @@ if [[ -z "${ssh_secret_label}" ]]; then
       sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
   fi
   #inject vicontrol service
-  sed -i "/service/r./insertservice" /var/lib/visiology/scripts/v2/external.yml
-  #inject secrets at the eof
-  cat insertsecrets >> /var/lib/visiology/scripts/v2/external.yml
+  if ! grep -Fxq "vicontrol" /var/lib/visiology/scripts/v2/external.yml;
+    then
+      sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
+      sed -i "/service/r./insertservice" /var/lib/visiology/scripts/v2/external.yml
+      #inject secrets at the eof
+      cat insertsecrets >> /var/lib/visiology/scripts/v2/external.yml
+      
+  fi
   #inject to nginx.conf have to pass HTTP1.1 reverse and proxy2
-  sed -i '/grafana:3000;/a         set $vicontrol_url http:\/\/vicontrol;' /docker-volume/proxy/nginx.conf
-  sed -i '/\/regular-reporting {/i             location ~* ^\/control {\n            proxy_pass $vicontrol_url;\n        }\n' /docker-volume/proxy/nginx.conf
+  if ! grep -Fxq "vicontrol_url" /docker-volume/proxy/nginx.conf;
+    then
+      sed -i '/grafana:3000;/a         set $vicontrol_url http:\/\/vicontrol;' /docker-volume/proxy/nginx.conf
+  fi
+  if ! grep -Fxq "^\/control" /docker-volume/proxy/nginx.conf;
   # websockets inject
-  #sed /var/lib/visiology/scripts/config/nginx.conf
-  #sed /docker-volume/proxy/nginx.conf
+    then
+    sed -i "/location ~* ^\/v3/e cat ./insertreverse" /var/lib/visiology/scripts/configs/nginx.conf
+    sed -i "/location ~* ^\/ssbi/e cat ./insertproxy" /docker-volume/proxy/nginx.conf
+  fi
 fi
 
 #build the image

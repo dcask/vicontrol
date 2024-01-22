@@ -15,6 +15,6 @@
       - MONGODB_NAME=VisiologyVA
       - MONGODB_HOST=mongodb
       - PLATFORM_URL=${PLATFORM_URL:-proxy}
-    volumes:
-      - ./vicontrol:/app
+    #volumes:
+    #  - ./vicontrol:/app
     << : *deploy
