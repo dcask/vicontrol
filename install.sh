@@ -28,7 +28,8 @@ if [[ -z "${ssh_secret_label}" ]]; then
   cat /home/vicontrol/id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
   docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_KEY /home/vicontrol/.ssh/id_rsa
   rm -f /home/vicontrol/.ssh/id_rsa
-  
+  cp ./wsjs.js /docker-volume/dashboard-viewer/customjs/vicontrol.js
+  cp ./my.css /docker-volume/dashboard-viewer/customjs/vicontrol.css
   #check id external.yml is default
   if ! grep -Fxq "service" /var/lib/visiology/scripts/v2/external.yml;
     then
