@@ -63,7 +63,7 @@ async def log_service(name:str, request: Request, data=Body()):
     lines=100
     if 'lines' in data:
         lines=data['lines']
-    cmd_to_execute = 'docker logs $( echo $(docker ps -a --format {{.ID}} --filter "name=visiology2_vicontrol" --filter "status=running" --filter "status=exited" | awk \'{print $1}\') | awk \'{print $1}\') -n '+str(lines)
+    cmd_to_execute = 'docker logs $( echo $(docker ps -a --format {{.ID}} --filter "name='+name+'" --filter "status=running" --filter "status=exited" | awk \'{print $1}\') | awk \'{print $1}\') -n '+str(lines)
     #print(cmd_to_execute)
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = ssh_stdout.readlines()

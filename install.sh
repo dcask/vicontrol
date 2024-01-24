@@ -1,5 +1,6 @@
 #!/bin/bash
 
+/var/lib/visiology/scripts/run.sh --stop
 
 ssh_secret_label=$(docker secret ls -q --filter label=VICONTROL_SSH_AUTH)
 
@@ -22,6 +23,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   chown -R :visiology /var/lib/visiology
   chmod -R g+w /var/lib/visiology/scripts/*.env
   #create ssh authorization key, make the key secret and finnaly remove private key
+  mkdir /home/vicontrol/.ssh
   ssh-keygen -t rsa -q -f "/home/vicontrol/.ssh/id_rsa" -N ""
   cat /home/vicontrol/id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
   docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_KEY /home/vicontrol/.ssh/id_rsa
@@ -51,6 +53,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
     then
     sed -i "/location ~* ^\/v3/e cat ./insertreverse" /var/lib/visiology/scripts/configs/nginx.conf
     sed -i "/location ~* ^\/ssbi/e cat ./insertproxy" /docker-volume/proxy/nginx.conf
+    docker config rm reverseproxy
   fi
 fi
 

@@ -26,9 +26,11 @@ class ConnectionManager:
            return False
         ws = ViConnection( websocket, data['dashboard'] , data['token'], client_id)
         ws.username = getTokenUser(data['token'], self.keys)
-        self.active_connections.append(ws)
-        print(client_id, "connected")
-        return True
+        if ws.username != '' :
+           self.active_connections.append(ws)
+           print(client_id, "connected")
+           return True
+        return False
 
     def disconnect(self, websocket:WebSocket):
         for c in self.active_connections:

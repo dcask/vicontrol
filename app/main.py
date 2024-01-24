@@ -63,16 +63,16 @@ def shutdown_db_client():
 
 
 #--------------------------------------------------------------  WebSocket
-@app.websocket("/control/ws/admin")
-async def websocket_admin_endpoint(websocket: WebSocket):
-    print('admin is connected')
-    await manager.connect(websocket, 'admin')
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(data)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+#@app.websocket("/control/ws/admin")
+#async def websocket_admin_endpoint(websocket: WebSocket):
+#    print('admin is connected')
+#    await manager.connect(websocket, 'admin')
+#    try:
+#        while True:
+#            data = await websocket.receive_text()
+#            await manager.broadcast(data)
+#    except WebSocketDisconnect:
+#        manager.disconnect(websocket)
 
 @app.websocket("/control/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
