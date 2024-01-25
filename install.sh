@@ -38,7 +38,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   #inject vicontrol service
   if ! grep -Fxq "vicontrol" /var/lib/visiology/scripts/v2/external.yml;
     then
-      sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
+      #sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
       sed -i "/service/r./insertservice" /var/lib/visiology/scripts/v2/external.yml
       #inject secrets at the eof
       cat insertsecrets >> /var/lib/visiology/scripts/v2/external.yml
