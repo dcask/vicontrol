@@ -83,7 +83,7 @@ async def broadcast_admin_message( request: Request, data = Body()):
     return {'details':'done'}
 #-------------------------------------------------------------------------------------------
 @shell_router.get("/connections", response_description="List of websocket connections", response_model=List)
-async def service_list(request: Request):
+async def connection_list(request: Request):
     output = request.app.manager.connection_list()
     return output
 
