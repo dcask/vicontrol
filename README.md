@@ -3,7 +3,6 @@
 
 Установка:
 ```
-git clone https://github.com/dcask/vicontrol.git \
-cd vicontrol/ \
-sudo ./install.sh
+git clone https://github.com/dcask/vicontrol.git 
+cd vicontrol && sudo ./install.sh
 ```
