@@ -52,8 +52,8 @@ if [[ -z "${ssh_secret_label}" ]]; then
   if ! grep -Fq "^\/control" /docker-volume/proxy/nginx.conf;
   # websockets inject
     then
-    sed -i "/location ~* ^\/v3/e cat ./insertreverse" /var/lib/visiology/scripts/configs/nginx.conf
-    sed -i "/location ~* ^\/ssbi/e cat ./insertproxy" /docker-volume/proxy/nginx.conf
+    sed -i "/location.*v3/e cat ./insertreverse" /var/lib/visiology/scripts/configs/nginx.conf
+    sed -i "/location.*ssbi/e cat ./insertproxy" /docker-volume/proxy/nginx.conf
     docker config rm reverseproxy
   fi
 fi
