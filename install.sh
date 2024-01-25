@@ -31,7 +31,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   cp ./wsjs.js /docker-volume/dashboard-viewer/customjs/vicontrol.js
   cp ./my.css /docker-volume/dashboard-viewer/customjs/vicontrol.css
   #check id external.yml is default
-  if ! grep -Fq "services" /var/lib/visiology/scripts/v2/external.yml;
+  if ! grep -Fq "services:" /var/lib/visiology/scripts/v2/external.yml;
     then
       sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
   fi
