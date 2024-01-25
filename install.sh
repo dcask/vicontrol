@@ -31,12 +31,12 @@ if [[ -z "${ssh_secret_label}" ]]; then
   cp ./wsjs.js /docker-volume/dashboard-viewer/customjs/vicontrol.js
   cp ./my.css /docker-volume/dashboard-viewer/customjs/vicontrol.css
   #check id external.yml is default
-  if ! grep -Fxq "service" /var/lib/visiology/scripts/v2/external.yml;
+  if ! grep -Fq "services" /var/lib/visiology/scripts/v2/external.yml;
     then
       sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
   fi
   #inject vicontrol service
-  if ! grep -Fxq "vicontrol" /var/lib/visiology/scripts/v2/external.yml;
+  if ! grep -Fq "vicontrol" /var/lib/visiology/scripts/v2/external.yml;
     then
       #sed -i "/version/r./insertheader" /var/lib/visiology/scripts/v2/external.yml
       sed -i "/service/r./insertservice" /var/lib/visiology/scripts/v2/external.yml
@@ -45,11 +45,11 @@ if [[ -z "${ssh_secret_label}" ]]; then
       
   fi
   #inject to nginx.conf have to pass HTTP1.1 reverse and proxy2
-  if ! grep -Fxq "vicontrol_url" /docker-volume/proxy/nginx.conf;
+  if ! grep -Fq "vicontrol_url" /docker-volume/proxy/nginx.conf;
     then
       sed -i '/grafana:3000;/a         set $vicontrol_url http:\/\/vicontrol;' /docker-volume/proxy/nginx.conf
   fi
-  if ! grep -Fxq "^\/control" /docker-volume/proxy/nginx.conf;
+  if ! grep -Fq "^\/control" /docker-volume/proxy/nginx.conf;
   # websockets inject
     then
     sed -i "/location ~* ^\/v3/e cat ./insertreverse" /var/lib/visiology/scripts/configs/nginx.conf
