@@ -28,6 +28,7 @@ print("ssh host", SSH_HOST, '---')
 DB_NAME = os.getenv('MONGODB_NAME')
 MONGO_HOST_NAME = os.getenv('MONGODB_HOST')
 HOST = os.getenv('PLATFORM_URL')
+PORT = os.getenv('SSH_PORT')
 
 mongo_uri = "mongodb://%s:%s@%s/%s?directConnection=true" % (quote_plus(mongouser), quote_plus(mongopassword), MONGO_HOST_NAME, DB_NAME)
 
@@ -50,7 +51,7 @@ def startup_db_client():
     app.ssh_client = paramiko.SSHClient()
     app.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #app.ssh_client.connect(hostname=SSH_HOST, username=ssh_user, password=ssh_password,key_filename='/run/secrets/SSH_AUTH_KEY')
-    app.ssh_client.connect(hostname=SSH_HOST, username=ssh_user, key_filename='/run/secrets/SSH_AUTH_KEY')
+    app.ssh_client.connect(hostname=SSH_HOST, username=ssh_user, key_filename='/run/secrets/SSH_AUTH_KEY', port=PORT)
 
     manager.setHostKeys(app.host)
     app.manager=manager
