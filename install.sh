@@ -25,7 +25,7 @@ if [[ -z "${ssh_secret_label}" ]]; then
   #create ssh authorization key, make the key secret and finnaly remove private key
   mkdir /home/vicontrol/.ssh
   ssh-keygen -t rsa -q -f "/home/vicontrol/.ssh/id_rsa" -N ""
-  cat /home/vicontrol/id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
+  cat /home/vicontrol/.ssh/id_rsa.pub >> /home/vicontrol/.ssh/authorized_keys
   docker secret create -l VOCONTROL_SSH_AUTH=ssh_password SSH_AUTH_KEY /home/vicontrol/.ssh/id_rsa
   rm -f /home/vicontrol/.ssh/id_rsa
   cp ./wsjs.js /docker-volume/dashboard-viewer/customjs/vicontrol.js
