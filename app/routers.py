@@ -90,7 +90,7 @@ async def connection_list(request: Request):
 #-------------------------------------------------------------------------------------------
 @shell_router.get("/services", response_description="List of services", response_model=List)
 async def service_list(request: Request):
-    cmd_to_execute = f'docker service ls --format json | grep visiology2'
+    cmd_to_execute = 'docker service ls --format "{\\\"ID\\\":\\\"{{.ID}}\\\",\\\"Name\\\":\\\"{{.Name}}\\\",\\\"Replicas\\\":\\\"{{.Replicas}}\\\"}"'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     output = [json.loads(line) for line in iter(ssh_stdout.readline, '')]
     #output = ssh_stdout.readline()
