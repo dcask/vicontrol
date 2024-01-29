@@ -26,7 +26,7 @@ class ConnectionManager:
            return False
         ws = ViConnection( websocket, data['dashboard'] , data['token'], client_id)
         ws.username = getTokenUser(data['token'], self.keys)
-        ws.dd = 'dd' if data['dd']=='true' else ''
+        ws.dd = ', ddesigner' if data['dd']=='true' else ''
         if ws.username != '' :
            self.active_connections.append(ws)
            print(client_id, "connected")
