@@ -9,7 +9,7 @@ class ViConnection:
         self.token     = token
         self.client_id = client_id
         self.username  = ''
-
+        self.dd        = ''
 
 class ConnectionManager:
     def __init__(self):
@@ -21,15 +21,17 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket, client_id:str):
         await websocket.accept()
         data = loads(await websocket.receive_text())
-        if 'dashboard' not in data or 'token' not in data:
+        if 'dashboard' not in data or 'token' not in data or 'dd' not in data:
            websocket.send_text("Unauthorized")
            return False
         ws = ViConnection( websocket, data['dashboard'] , data['token'], client_id)
         ws.username = getTokenUser(data['token'], self.keys)
+        ws.dd = 'dd' if data['dd']=='true' else ''
         if ws.username != '' :
            self.active_connections.append(ws)
            print(client_id, "connected")
            return True
+        websocket.send_text("Unauthorized")
         return False
 
     def disconnect(self, websocket:WebSocket):
@@ -51,7 +53,7 @@ class ConnectionManager:
                  print(f"a Client closed connection")
 
     def connection_list(self):
-        return [ {'client_id':c.client_id, 'dashboard':c.dashboard, 'user':c.username,'ip':c.websocket.headers['x-forwarded-for']} for c in self.active_connections]
+        return [ {'client_id':c.client_id, 'dashboard':c.dashboard, 'user':c.username,'ip':c.websocket.headers['x-forwarded-for']+c.dd} for c in self.active_connections]
 
         
 
