@@ -86,13 +86,22 @@ async def broadcast_admin_message( request: Request, data = Body()):
 async def connection_list(request: Request):
     output = request.app.manager.connection_list()
     return output
-
+#-------------------------------------------------------------------------------------------
+@shell_router.get("/sessions", response_description="List of logged users", response_model=List)
+async def sessions_list(request: Request):
+    output = ''
+    try:
+        with open('user.sessions','r') as f:
+            output = [json.loads(line) for line in f.readlines()]
+    except:
+        output = [{'details':'error reading sessions'}]
+    return output
 #-------------------------------------------------------------------------------------------
 @shell_router.get("/services", response_description="List of services", response_model=List)
 async def service_list(request: Request):
     cmd_to_execute = 'docker service ls --format "{\\\"ID\\\":\\\"{{.ID}}\\\",\\\"Name\\\":\\\"{{.Name}}\\\",\\\"Replicas\\\":\\\"{{.Replicas}}\\\"}"'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
-    output = [json.loads(line) for line in iter(ssh_stdout.readline, '')]
+    
     #output = ssh_stdout.readline()
     #errors = ssh_stderr.readlines()
     #return {'details':ssh_stdout,'errors':ssh_stderr}
