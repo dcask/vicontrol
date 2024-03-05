@@ -102,7 +102,7 @@ async def service_list(request: Request):
     cmd_to_execute = 'docker service ls --format "{\\\"ID\\\":\\\"{{.ID}}\\\",\\\"Name\\\":\\\"{{.Name}}\\\",\\\"Replicas\\\":\\\"{{.Replicas}}\\\"}"'
     ssh_stdin, ssh_stdout, ssh_stderr = request.app.ssh_client.exec_command(cmd_to_execute)
     
-    #output = ssh_stdout.readline()
+    output = [json.loads(line) for line in ssh_stdout.readlines()]
     #errors = ssh_stderr.readlines()
     #return {'details':ssh_stdout,'errors':ssh_stderr}
     return output
